@@ -1,0 +1,1 @@
+from bloxorz.algorithm.generic import GenericAlgorithm
