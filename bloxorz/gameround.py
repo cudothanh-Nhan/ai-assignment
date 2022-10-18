@@ -3,8 +3,28 @@ import numpy as np
 
 from bloxorz.blockstate import BlockState, Move
 
+class Bridge:
+    def __init__(self):
+        self.pos = None
+        self.tiles = []
+        self.is_rigid = True
+
+    def __eq__(self, other):
+        if not isinstance(other, Bridge):
+            return False
+
+        return other.pos == self.pos
+
+    def __ne__(self, other):
+        if not isinstance(other, Bridge):
+            return True
+
+        return other.pos != self.pos
 
 class GameRound:
+    EMPTY = 0
+    RIGID_TILE = 1
+    SOFT_TILE = 2
     def __init__(self, round_name):
         round_file = open('bloxorz/rounds/{}.json'.format(round_name), 'r')
         jsonObj = json.loads(round_file.read())
@@ -17,10 +37,20 @@ class GameRound:
         self.start = jsonObj['start']
 
         self.end = jsonObj['end']
+        self.bridges = []
+        for b in jsonObj['bridges']:
+            bridge = Bridge()
+            bridge.pos = b['pos']
+            bridge.tiles = b['tiles']
+            bridge.is_rigid = b['is_rigid']
+
+            self.bridges.append(bridge)
+
+
 
     def get_start_state(self):
         head = tail = (self.start[0], self.start[1])
-        return BlockState(head, tail)
+        return BlockState(head, tail, [])
 
     def get_next_valid_states(self, state):
         valid_states = []
@@ -83,22 +113,76 @@ class GameRound:
                     new_head = new_tail = (x2 - 1, y1)
                 elif move == Move.RIGHT:
                     new_head = new_tail = (x1 + 1, y2)
-        new_state = BlockState(new_head, new_tail)
 
+        # Temporary set empty bridge
+        new_state = BlockState(new_head, new_tail, [])
+
+        if self.is_out_of_range(new_state):
+            return None
+
+        new_state.bridges = self.calc_new_bridges(new_state, state.bridges)
         if self.is_valid_state(new_state):
             return new_state
         else:
             return None
+    def calc_new_bridges(self, new_state, old_bridges):
+        new_bridges = old_bridges.copy()
 
+        triggerd_bridges = self.get_trigger_bridges(new_state)
+        for b in triggerd_bridges:
+            if b not in old_bridges:
+                new_bridges.append(b)
+            else:
+                new_bridges = list(filter(lambda x: x != b, new_bridges))
+
+        return new_bridges
+
+    def get_trigger_bridges(self, state):
+        head_iter = next(filter(lambda b: [state.head[0], state.head[1]] == b.pos, self.bridges), None)
+        tail_iter = next(filter(lambda b: [state.tail[0], state.tail[1]] == b.pos, self.bridges), None)
+        if state.head == state.tail and \
+                head_iter is not None and tail_iter is not None and \
+                head_iter.is_rigid:
+            return [head_iter]
+
+        arr = []
+        if head_iter is not None and not head_iter.is_rigid:
+            arr.append(head_iter)
+
+        if tail_iter is not None and not tail_iter.is_rigid:
+            arr.append(tail_iter)
+
+        return arr
     def is_valid_state(self, state):
-        return self.is_tile_available(state.head[0], state.head[1]) and\
-               self.is_tile_available(state.tail[0], state.tail[1])
 
-    def is_tile_available(self, x, y):
-        return 0 <= x < self.width and \
-               0 <= y < self.height and\
-               self.map[x][y] == 1
+        b1 = self.is_not_out_of_edge(state)
+        b2 = self.is_not_vertical_on_soft(state)
+
+        return b1 and b2
+
+    def is_not_vertical_on_soft(self, state):
+        if state.head == state.tail and self.map[state.head[0]][state.head[1]] == GameRound.SOFT_TILE:
+            return False
+        else:
+            return True
+
+    def is_not_out_of_edge(self, state):
+        head = state.head
+        tail = state.tail
+
+        return (self.map[head[0]][head[1]] != GameRound.EMPTY or self.is_on_bridge(head, state.bridges)) \
+               and (self.map[tail[0]][tail[1]] != GameRound.EMPTY or self.is_on_bridge(tail, state.bridges))
+
+    def is_on_bridge(self, coord, bridges):
+        iter = filter(lambda b: [coord[0], coord[1]] in b.tiles, bridges)
+        return next(iter, None) is not None
+    def is_out_of_range(self, state):
+        is_in_range =  0 <= state.head[0] < self.width and \
+                       0 <= state.head[1] < self.height and \
+                       0 <= state.tail[0] < self.width and \
+                       0 <= state.tail[1] < self.height
+        return not is_in_range
 
     def is_reach_goal(self, state):
         head = tail = (self.end[0], self.end[1])
-        return state == BlockState(head, tail)
+        return state == BlockState(head, tail, [])

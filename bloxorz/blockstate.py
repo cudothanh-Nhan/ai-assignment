@@ -10,9 +10,10 @@ class Move(Enum):
 
 class BlockState:
 
-    def __init__(self, head, tail):
+    def __init__(self, head, tail, bridges):
         self.head = head
         self.tail = tail
+        self.bridges = bridges
 
     def __hash__(self):
         return hash('{}-{}'.format(self.head, self.tail))
