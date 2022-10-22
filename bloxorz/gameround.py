@@ -61,6 +61,15 @@ class GameRound:
 
         return valid_states
     
+    def get_next_valid_moves(self, state):
+        valid_moves = []
+        for m in Move:
+            new_state = self.calc_new_state(state, m)
+            if new_state is not None:
+                valid_moves.append(m)
+
+        return valid_moves
+
     def calc_new_state(self, state, move):
         new_head = None
         new_tail = None
@@ -185,4 +194,5 @@ class GameRound:
 
     def is_reach_goal(self, state):
         head = tail = (self.end[0], self.end[1])
+        # TODO: handle state.bridges != []
         return state == BlockState(head, tail, [])
