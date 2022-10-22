@@ -11,8 +11,8 @@ class GameState:
     GAME_ROUND = None
 
     @staticmethod
-    def SET_GAME_ROUND(round_number):
-        GameState.GAME_ROUND = GameRound(round_number)
+    def SET_GAME_ROUND(game_round):
+        GameState.GAME_ROUND = game_round
 
     def __init__(self):
         if type(GameState.GAME_ROUND) is not GameRound:
@@ -33,6 +33,8 @@ class GameState:
         return GameState.GAME_ROUND.is_reach_goal(self.block_state)
 
     def get_hash(self):
+        block = self.block_state
+        return hash('{}-{}:{}'.format(block.head, block.tail, len(block.bridges)))
         return hash(self.block_state)
 
 
@@ -90,3 +92,4 @@ class BlindSearchAlgorithm(Algorithm):
                 return
             traversal.iterate()
             ntrial += 1
+        print("ntrial: ", ntrial)

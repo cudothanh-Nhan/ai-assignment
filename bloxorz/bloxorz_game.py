@@ -2,7 +2,7 @@ import os
 
 import pygame
 
-from bloxorz.algorithm import GenericAlgorithm
+from bloxorz.algorithm import GenericAlgorithm, BlindSearchAlgorithm
 from bloxorz.blockstate import Move
 from bloxorz.gameround import GameRound
 from bloxorz.ui import UI
@@ -16,6 +16,22 @@ class BloxorzGame:
         self.game_ui = UI(self.game_round)
         os.environ['SDL_VIDEO_CENTERED'] = '1'
 
+    def run_game_dfs_algo(self, timeout):
+        self.game_ui.draw_waiting_screen()
+        pygame.display.flip()
+
+        algorithm = BlindSearchAlgorithm(self.game_round, timeout)
+        algorithm.run()
+        if algorithm.found_solution():
+            print(algorithm.get_solution())
+            solution = algorithm.get_solution()
+            self.simulate_solution(solution, caption="Found solution with DFS")
+        else:
+            print("failed")
+            self.simulate_solution(
+                [], caption="Not found solution. Press <space> to exit")
+
+
     def run_game_generic_algo(self, timeout):
         algorithm = GenericAlgorithm(self.game_round, timeout)
 
@@ -28,8 +44,12 @@ class BloxorzGame:
         state = self.game_round.get_start_state()
         caption = 'Found solution' if algorithm.is_found else 'Not found solution. Simulate best move'
         self.game_ui.draw_map(state, caption)
-        moveit = iter(solution)
+        self.simulate_solution(solution, caption)
 
+    def simulate_solution(self, moves, caption):
+        state = self.game_round.get_start_state()
+        self.game_ui.draw_map(state, caption)
+        moveit = iter(moves)
         while self.running:
             self.clock.tick(60)
             events = pygame.event.get()
