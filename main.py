@@ -21,6 +21,8 @@ if __name__ == '__main__':
             bloxorz_game.run_game_manually()
         elif args.algo.lower() == 'generic':
             bloxorz_game.run_game_generic_algo(args.timeout)
+        elif args.algo.lower() == 'dfs':
+            bloxorz_game.run_game_dfs_algo(args.timeout)
         else:
             print('Invalid algorithm name')
     else:

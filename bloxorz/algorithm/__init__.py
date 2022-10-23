@@ -1,1 +1,2 @@
+from bloxorz.algorithm.blind_search import BlindSearchAlgorithm
 from bloxorz.algorithm.generic import GenericAlgorithm
