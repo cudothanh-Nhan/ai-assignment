@@ -16,6 +16,6 @@
   ],
   "bridges":
   [
-    {"pos": [4, 1], "tiles": [[5, 2], [5, 3]], "is_rigid": true}
+    {"pos": [4, 1], "tiles": [[5, 2], [5, 3]], "is_rigid": true, "is_start_trigger":  false}
   ]
 }

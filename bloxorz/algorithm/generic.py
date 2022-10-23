@@ -23,30 +23,44 @@ class Individual:
         self.fitness = self.calc_fitness()
 
     def calc_fitness(self):
+        visited_coord = set()
         visited_state = set()
         i_state = self.game_round.get_start_state()
         fitness = 0
         moves = []
+        is_dead = False
         for move in self.chromosome:
             moves.append(move)
             new_state = self.game_round.calc_new_state(i_state, move)
             if new_state is None:
+                # distance = self.game_round.h1_distance(i_state.head, self.game_round.end)
+                # fitness += 1 / (1 + distance) * 100
+                is_dead = True
                 break
 
             if self.game_round.is_reach_goal(new_state):
                 fitness += 1000
                 self.is_finish = True
                 break
-            if new_state not in visited_state:
-                fitness += 10
-            else:
-                fitness += -20
+            if new_state.head not in visited_coord and new_state.tail not in visited_coord:
+                fitness += 2
+            # if new_state not in visited_state:
+            #     fitness += 1
+            # else:
+            #     fitness += -20
 
-            if new_state.euclidean_dist(self.game_round.end) < i_state.euclidean_dist(self.game_round.end):
-                fitness += 20
+            # if self.game_round.h1_distance(new_state.head, self.game_round.end) <  self.game_round.h1_distance(i_state.head, self.game_round.end):
+            #     fitness += 20
 
+            visited_coord.add(new_state.head)
+            visited_coord.add(new_state.tail)
             visited_state.add(new_state)
             i_state = new_state
+
+        if not is_dead:
+            # distance = self.game_round.h1_distance(i_state.head, self.game_round.end)
+            # fitness += 1 / (1 + distance) * 100
+            fitness += 1 / len(moves) * 100
 
         self.max_moves = moves
         return fitness
@@ -59,13 +73,15 @@ class Individual:
     @staticmethod
     def mutate_chromosome(chromosome):
         chromosome = chromosome.copy()
-        mutate_idx = random.randint(0, Individual.CHROMOSOME_LENGTH)
+        mutate_idx = random.randint(0, Individual.CHROMOSOME_LENGTH - 1)
         chromosome[mutate_idx] = random.choice(list(Move))
         return chromosome
 
     def crossover(self, other):
-        split_idx = random.randint(0, Individual.CHROMOSOME_LENGTH - 1)
+        min_idx = min(len(self.max_moves), len(other.max_moves))
+        split_idx = random.randint(min_idx if min_idx <= Individual.CHROMOSOME_LENGTH - 1 else 1, Individual.CHROMOSOME_LENGTH - 1)
         child = self.chromosome[0:split_idx] + other.chromosome[split_idx:]
+        child = Individual.mutate_chromosome(child)
         return Individual(child, self.game_round)
 
     def __repr__(self):

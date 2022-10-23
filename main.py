@@ -1,3 +1,5 @@
+from bloxorz.algorithm.generic import Individual
+from bloxorz.blockstate import Move
 from bloxorz.bloxorz_game import BloxorzGame
 import argparse
 

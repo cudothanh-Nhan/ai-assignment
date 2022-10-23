@@ -22,8 +22,11 @@ class BlockState:
         return isinstance(other, BlockState) and \
                self.head == other.head and \
                self.tail == other.tail
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
     def __repr__(self):
-        return 'Head = {}. Tail = {}'.format(self.head, self.tail)
+        return 'Head = {}. Tail = {}. Bridges len = {}'.format(self.head, self.tail, len(self.bridges))
     def is_vertical(self):
         return self.head[0] == self.tail[0] and self.head[1] == self.tail[1]
 
