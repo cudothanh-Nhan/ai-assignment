@@ -1,8 +1,8 @@
-import os
-
 import unittest
 
-from ..board import Board
+from watersort.board import Board
+from watersort.glass import Glass
+from watersort.algorithm.blindsearch.solver import solver
 
 class TestMain(unittest.TestCase):
 
@@ -13,13 +13,13 @@ class TestMain(unittest.TestCase):
             print("solved")
             moves = result["moves"]
             for move in moves:
-                print(str(move._from) + " " + str(move._to))
+                print("move from " +str(move._from) + " to " + str(move._to))
             return True
         return False
     
     def test_can_create_multiple_glass(self):
         board = Board([
-            Glass.create_glass([2, 1, 1, 1]),
+            Glass.create_glass([2, 1, 1, 3]),
             Glass.create_glass([2, 2, 2]),
             Glass.create_glass([1]),
             Glass.create_glass([])
