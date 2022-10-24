@@ -15,7 +15,7 @@ class Glass:
         for ball in balls:
             self.pushBall(ball)
 
-    def push_ball(self, ball):
+    def push_ball(self, ball: int):
         self.stack.append(ball)
 
     def pop_ball(self):
