@@ -1,9 +1,8 @@
-import imp
+import os
+
 import unittest
 
-from .. import Board
-from .. import Glass
-from ..algorithm.blindsearch import solver
+from ..board import Board
 
 class TestMain(unittest.TestCase):
 
