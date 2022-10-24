@@ -1,4 +1,4 @@
-from BFS import BFS
+from watersort.algorithm.blindsearch.BFS import BFS
 
 class GraphNode:
     def __init__(self, board, prev_node, prev_move):

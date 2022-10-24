@@ -13,7 +13,7 @@ class Glass:
         if len(balls) + len(self.stack) > self.capacity:
             return False
         for ball in balls:
-            self.pushBall(ball)
+            self.push_ball(ball)
 
     def push_ball(self, ball: int):
         self.stack.append(ball)

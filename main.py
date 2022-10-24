@@ -3,6 +3,8 @@ from bloxorz.blockstate import Move
 from bloxorz.bloxorz_game import BloxorzGame
 import argparse
 
+from watersort.test.test_main import TestMain
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -25,5 +27,8 @@ if __name__ == '__main__':
             bloxorz_game.run_game_dfs_algo(args.timeout)
         else:
             print('Invalid algorithm name')
+    elif args.game.lower() == 'watersort':
+        watersortTest = TestMain()
+        watersortTest.test_can_create_multiple_glass()
     else:
         print("Invalid game name. Please enter 'bloxorz' or 'water_puzzle'")

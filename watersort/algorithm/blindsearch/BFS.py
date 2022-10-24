@@ -1,9 +1,9 @@
-from traversal import Traversal
+from watersort.algorithm.blindsearch.traversal import Traversal
 
 class BFS(Traversal):
     def __init__(self, start_node):
         self.visited = set()
-        self.visited.add(start_node.get_hast())
+        self.visited.add(start_node.get_hash())
         self.bfs_queue= list()
         self.bfs_queue.append(start_node)
     
