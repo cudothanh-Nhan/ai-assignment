@@ -4,19 +4,20 @@ class Glass:
 
     def __init__(self, capacity: int):
         self.capacity = capacity
-        self.stack = list < int > ()
+        self.stack = list[int]()
 
     @staticmethod
     def create_glass(balls: list[int], cap: int = 4) -> 'Glass':
-        glass = Glass(4)
+        glass = Glass(cap)
         glass.push_list_of_balls(balls)
         return glass
 
-    def push_list_of_balls(self, balls: list[int]) -> None:
+    def push_list_of_balls(self, balls: list[int]) -> bool:
         if len(balls) + len(self.stack) > self.capacity:
             return False
         for ball in balls:
             self.push_ball(ball)
+        return True
 
     def push_ball(self, ball: int) -> None:
         self.stack.append(ball)
