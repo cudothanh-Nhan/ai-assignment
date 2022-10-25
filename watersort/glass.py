@@ -1,53 +1,49 @@
 class Glass:
-    def __init__(self, capacity):
+    capacity: int
+    stack: list[int]
+
+    def __init__(self, capacity: int):
         self.capacity = capacity
-        self.stack = list()
-    
+        self.stack = list < int > ()
+
     @staticmethod
-    def create_glass(balls, cap = 4):
+    def create_glass(balls: list[int], cap: int = 4) -> 'Glass':
         glass = Glass(4)
         glass.push_list_of_balls(balls)
         return glass
 
-    def push_list_of_balls(self, balls):
+    def push_list_of_balls(self, balls: list[int]) -> None:
         if len(balls) + len(self.stack) > self.capacity:
             return False
         for ball in balls:
             self.push_ball(ball)
 
-    def push_ball(self, ball: int):
+    def push_ball(self, ball: int) -> None:
         self.stack.append(ball)
 
-    def pop_ball(self):
-        ball = self.stack[-1]
-        self.stack = self.stack[:-1]
-        return ball
-    
-    def get_top_ball(self):
-        return self.stack[-1]
-    
-    def get_all_balls(self):
-        balls = list()
-        for i in range(0, len(self.stack)):
-            balls.append(self.stack[i])
-        return balls
+    def pop_ball(self) -> int:
+        return self.stack.pop()
 
-    def is_full(self):
+    def get_top_ball(self) -> int:
+        return self.stack[-1]
+
+    def get_all_balls(self) -> list[int]:
+        return self.stack
+
+    def is_full(self) -> bool:
         return len(self.stack) == self.capacity
-    
-    def is_empty(self):
+
+    def is_empty(self) -> bool:
         return len(self.stack) == 0
 
-    def has_single_color(self):
+    def has_single_color(self) -> bool:
         for i in range(1, len(self.stack)):
-            if self.stack[i-1] != self.stack[i]: return False
+            if self.stack[i-1] != self.stack[i]:
+                return False
         return True
-    
-    def get_size(self):
-        return len(self.stack)
-    
-    def to_string(self):
-        return ",".join([str(x) for x in self.stack])
-    
 
-        
+    def get_size(self) -> int:
+        return len(self.stack)
+
+    def to_string(self) -> str:
+        return ",".join([str(x) for x in self.stack])

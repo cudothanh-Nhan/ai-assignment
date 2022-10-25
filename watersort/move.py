@@ -1,5 +1,8 @@
 class Move:
-    def __init__(self, _from, _to):
+    _from: int
+    _to: int
+
+    def __init__(self, _from: int, _to: int):
         self._from = _from
         self._to = _to
     def invert(self):

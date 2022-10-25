@@ -1,26 +1,30 @@
 import copy
+from watersort.glass import Glass
 from watersort.move import Move
 
 class Board:
-    def __init__(self, glasses_list):
+    glasses_list: list[Glass]
+    num_of_colors: int
+
+    def __init__(self, glasses_list: list[Glass]):
         self.glasses_list = glasses_list
         self.num_of_colors = self.calc_colors_required()
     
-    def get_glasses_list(self):
+    def get_glasses_list(self) -> list[Glass]:
         return self.glasses_list
-
     
-    def is_glass_complete(self, idx):
+    def is_glass_complete(self, idx: int) -> bool:
         glass = self.glasses_list[idx]
         return glass.is_full() and glass.has_single_color()
     
-    def is_complete(self):
+    def is_complete(self) -> bool:
         count = 0
         for i in range(0, len(self.glasses_list)):
             if (self.is_glass_complete(i)): count += 1
         return count == self.num_of_colors
     
-    def calc_colors_required(self):
+    # 
+    def calc_colors_required(self) -> int:
         colors = set()
         for glass in self.glasses_list:
             balls = glass.get_all_balls()
@@ -28,8 +32,9 @@ class Board:
                 colors.add(ball)
         return len(colors)
     
-    def find_all_moveable_glass_by_index(self, to_idx):
-        indexes = list()
+
+    def find_all_moveable_glass_by_index(self, to_idx: int) -> list[int]:
+        indexes = list[int]()
         to_glass = self.glasses_list[to_idx]
         for from_idx, from_glass in enumerate(self.glasses_list):
             if from_idx == to_idx:
@@ -40,8 +45,8 @@ class Board:
                 indexes.append(from_idx)
         return indexes
     
-    def calc_all_potential_moves(self):
-        moves = list()
+    def calc_all_potential_moves(self) -> list[Move]:
+        moves = list[Move]()
         for to_idx, to_glass in enumerate(self.glasses_list):
             if to_glass.is_full():
                 continue
@@ -50,9 +55,9 @@ class Board:
                 moves.append(Move(from_idx, to_idx))
         return moves
     
-    def move_ball(self, move):
+    def move_ball(self, move) -> None:
         ball_to_move = self.glasses_list[move._from].pop_ball()
         self.glasses_list[move._to].push_ball(ball_to_move)
     
-    def clone(self):
+    def clone(self) -> 'Board':
         return copy.deepcopy(self)
