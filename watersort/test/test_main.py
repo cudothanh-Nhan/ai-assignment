@@ -19,9 +19,8 @@ class TestMain(unittest.TestCase):
     
     def test_can_create_multiple_glass(self):
         board = Board([
-            Glass.create_glass([2, 1, 1, 3]),
-            Glass.create_glass([2, 2, 2]),
-            Glass.create_glass([1]),
-            Glass.create_glass([])
+            Glass.create_glass([1,2,1,2]),
+            Glass.create_glass([2,1,2,1]),
+            Glass.create_glass([ ])
         ])
         self.solve(board)
