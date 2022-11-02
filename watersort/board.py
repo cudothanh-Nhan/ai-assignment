@@ -9,7 +9,7 @@ class Board:
     def get_glasses_list(self):
         return self.glasses_list
 
-    
+
     def is_glass_complete(self, idx):
         glass = self.glasses_list[idx]
         return glass.is_full() and glass.has_single_color()
