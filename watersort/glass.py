@@ -1,8 +1,14 @@
+import copy
+
+
 class Glass:
     def __init__(self, capacity):
         self.capacity = capacity
         self.stack = list()
     
+    def get_capacity(self):
+        return self.capacity
+
     @staticmethod
     def create_glass(balls, cap = 4):
         glass = Glass(4)
@@ -49,5 +55,7 @@ class Glass:
     def to_string(self):
         return ",".join([str(x) for x in self.stack])
     
+    def clone(self):
+        return copy.deepcopy(self)
 
         

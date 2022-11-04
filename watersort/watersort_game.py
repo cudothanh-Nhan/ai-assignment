@@ -15,32 +15,30 @@ class WatersortGame:
         self.game_round = WatersortRound(round_number)
         self.game_ui = WatersortUI(self.game_round)
 
-    def run_game_bfs_algo(self):
-        self.game_ui.draw_waiting_screen()
-        pygame.display.flip()
-        
         boardJson = self.game_round.getBoard() #import board from game_round
         boardList = list()
         for glassJson in boardJson:
             glass = Glass.create_glass(glassJson)
             boardList.append(glass)
 
-        board = Board(boardList)
+        self.board = Board(boardList)
 
-        algorithm = BFSsolver(board)
+    def run_game_bfs_algo(self):
+        self.game_ui.draw_waiting_screen()
+        pygame.display.flip()
+        
+        algorithm = BFSsolver(self.board)
         if algorithm["isSolved"]:
             print("solved")
             moves = algorithm["moves"]
-            for move in moves:
-                print("move from " +str(move._from) + " to " + str(move._to))
-            self.simulate_solution(moves, caption="Found solution with BFS")
+            self.simulate_solution(moves)
         else:
             print("failed")
-            self.simulate_solution([], caption="Not found solution. Press <space> to exit")
+            self.simulate_solution([], [])
 
     
-    def simulate_solution(self, moves, caption):
-        self.game_ui.draw_board() # need to done
+    def simulate_solution(self, moves):
+        self.game_ui.draw_board(self.board)
         moveit = iter(moves)
         while self.running:
             self.clock.tick(60)
@@ -49,11 +47,14 @@ class WatersortGame:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     self.running = False
-                elif event.type == pygame.K_DOWN or event.type == pygame.K_SPACE:
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                     next_move = next(moveit, None)
                     if next_move is not None:
                         # TODO
-                        print("hi")
+                        print("move from " +str(next_move._from) + " to " + str(next_move._to))
+                        self.board.move_ball(next_move)
+                        
+                        self.game_ui.draw_board(self.board)
                     else:
                         pygame.quit()
                         self.running = False
