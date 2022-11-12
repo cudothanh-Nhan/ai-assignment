@@ -6,7 +6,7 @@ import argparse
 from watersort.test.test_main import TestMain
 from watersort.watersort_game import WatersortGame
 from watersort.algorithm.astar.AStar import rounds, AStar
-
+import time
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -40,11 +40,14 @@ if __name__ == '__main__':
             watersort_game = WatersortGame(args.round)
             watersort_game.run_game_bfs_algo()
         elif args.algo.lower() == "a*":
-            if args.round > len(rounds):
+            if args.round > 5:
                 print("Round number out of range")
             else:
-                astar_game = AStar(rounds[args.round - 1])
+                start = time.time()
+                astar_game = AStar(args.round)
                 astar_game.solve()
+                end = time.time()
+                print(end - start)
         else:
             print('Invalid algorithm name')
     else:

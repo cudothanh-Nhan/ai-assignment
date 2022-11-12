@@ -1,4 +1,5 @@
 import copy
+import json
 
 
 class Move:
@@ -248,13 +249,13 @@ rounds = [[
 
 
 class AStar:
-    def __init__(self, init: list[list[int]]) -> None:
+    def __init__(self, round: int) -> None:
+        round_file = open('watersort/rounds/{}.json'.format(round), 'r')
+        json_obj = json.loads(round_file.read())
+        init = json_obj['board']
         size = len(set([item for sublist in init for item in sublist]))
-        max_size_of_glass = -1
-        for l in init:
-            if max_size_of_glass < len(l):
-                max_size_of_glass = len(l)
-        GameBoard.set_max_size_of_glass(max_size_of_glass)
+
+        GameBoard.set_max_size_of_glass(json_obj['capacity'])
         board = GameBoard(init, size)
         self.graph = Graph(board)
 
