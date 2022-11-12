@@ -33,7 +33,7 @@ if __name__ == '__main__':
         # watersortTest.test_can_create_multiple_glass()
         watersort_game = WatersortGame(args.round)
         if args.algo.lower() == 'bfs':
-            watersort_game.run_game_bfs_algo()
+            watersort_game.run_game_bfs_algo(args.timeout)
         else:
             print('Invalid algorithm name')
     else:
