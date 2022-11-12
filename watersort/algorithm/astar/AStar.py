@@ -102,7 +102,7 @@ class GameBoard:
         if (self.glasses[move._to].get_curr_capacity() == GameBoard.MAX_SIZE_OF_GLASS):
             return None
 
-        if (board.glasses[move._from].top() == None):
+        if (self.glasses[move._from].top() == None):
             return None
 
         new_board = self.clone_with_move(move)
@@ -220,49 +220,43 @@ class Graph:
                 closedl.append(n)
         print('Solution does not exist!')
 
-GameBoard.set_max_size_of_glass(4)
-board = GameBoard([
+
+rounds = [[
+    [1, 2, 3, 1],
+    [2, 2, 3, 1],
+    [3, 1, 2, 3],
+    [],
+    []
+], [
+    [1, 2],
+    [2, 1],
+    []
+], [
     [1, 2, 3, 2],
-    [1, 4, 4, 5],
-    [5, 5, 3, 4],
+    [1, 4, 4, 1],
+    [2, 3, 3, 4],
     [2, 3, 4, 1],
-    [3, 1, 2, 5],
-    [], []
-], 5)
+    [],
+    []
+], [
+    [1, 2, 3],
+    [2, 1, 3],
+    [3, 1, 2],
+    [],
+    []
+]]
 
-graph = Graph(board)
-graph.solve_by_astar_algorithm()
 
-# [
-#     [1, 2, 3, 1],
-#     [2, 2, 3, 1],
-#     [3, 1, 2, 3],
-#     [],
-#     []
-# ]
+class AStar:
+    def __init__(self, init: list[list[int]]) -> None:
+        size = len(set([item for sublist in init for item in sublist]))
+        max_size_of_glass = -1
+        for l in init:
+            if max_size_of_glass < len(l):
+                max_size_of_glass = len(l)
+        GameBoard.set_max_size_of_glass(max_size_of_glass)
+        board = GameBoard(init, size)
+        self.graph = Graph(board)
 
-# [
-#     [1, 2],
-#     [2, 1],
-#     []
-# ]
-
-# [
-#     [1, 1, 2, 3],
-#     [4, 5, 6, 7],
-#     [5, 3, 6, 2],
-#     [4, 2, 5, 7],
-#     [4, 6, 7, 7],
-#     [3, 1, 2, 1],
-#     [3, 4, 5, 6],
-#     [], []
-# ]
-
-# [
-#     [1, 2, 3, 2],
-#     [1, 4, 4, 5],
-#     [5, 5, 3, 4],
-#     [2, 3, 4, 1],
-#     [3, 1, 2, 5],
-#     [], []
-# ]
+    def solve(self):
+        self.graph.solve_by_astar_algorithm()

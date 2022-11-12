@@ -39,7 +39,6 @@ class WatersortGame:
         else:
             print("failed")
             self.simulate_solution([], [])
-
     
     def simulate_solution(self, moves):
         self.game_ui.draw_board(self.board)

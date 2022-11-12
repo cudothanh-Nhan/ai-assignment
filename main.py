@@ -5,15 +5,19 @@ import argparse
 
 from watersort.test.test_main import TestMain
 from watersort.watersort_game import WatersortGame
+from watersort.algorithm.astar.AStar import rounds, AStar
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     # Add an argument
-    parser.add_argument('--algo', type=str, default='generic', help="Algorithm to solve puzzle. Enter 'manual' to play")
-    parser.add_argument('--game', type=str, default='bloxorz', help='Game name')
+    parser.add_argument('--algo', type=str, default='generic',
+                        help="Algorithm to solve puzzle. Enter 'manual' to play")
+    parser.add_argument('--game', type=str,
+                        default='bloxorz', help='Game name')
     parser.add_argument('--round', type=int, default=1, help='Game round')
-    parser.add_argument('--timeout', type=int, default=20, help='Algorithm timeout in second')
+    parser.add_argument('--timeout', type=int, default=20,
+                        help='Algorithm timeout in second')
 
     args = parser.parse_args()
     print(args)
@@ -31,9 +35,16 @@ if __name__ == '__main__':
     elif args.game.lower() == 'watersort':
         # watersortTest = TestMain()
         # watersortTest.test_can_create_multiple_glass()
-        watersort_game = WatersortGame(args.round)
+        
         if args.algo.lower() == 'bfs':
+            watersort_game = WatersortGame(args.round)
             watersort_game.run_game_bfs_algo()
+        elif args.algo.lower() == "a*":
+            if args.round > len(rounds):
+                print("Round number out of range")
+            else:
+                astar_game = AStar(rounds[args.round - 1])
+                astar_game.solve()
         else:
             print('Invalid algorithm name')
     else:
