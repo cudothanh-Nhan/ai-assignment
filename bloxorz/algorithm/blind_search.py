@@ -1,6 +1,6 @@
 from __future__ import annotations
-from copy import deepcopy
-from time import time
+import time
+import psutil
 from bloxorz.algorithm.algorithm import Algorithm
 from bloxorz.algorithm.traversal.dfs import DFS
 from bloxorz.algorithm.traversal.traversal import TraversableNode
@@ -8,34 +8,25 @@ from bloxorz.gameround import GameRound
 
 
 class GameState:
-    GAME_ROUND = None
-
-    @staticmethod
-    def SET_GAME_ROUND(game_round):
-        GameState.GAME_ROUND = game_round
-
-    def __init__(self):
-        if type(GameState.GAME_ROUND) is not GameRound:
-            raise "error: SET_GAME_ROUND first"
-        self.block_state = GameState.GAME_ROUND.get_start_state()
+    def __init__(self, game_round: GameRound):
+        self.GAME_ROUND = game_round
+        self.block_state = self.GAME_ROUND.get_start_state()
 
     def get_next_valid_moves(self):
-        return GameState.GAME_ROUND.get_next_valid_moves(self.block_state)
+        return self.GAME_ROUND.get_next_valid_moves(self.block_state)
 
-    def clone(self):
-        return deepcopy(self)
-
-    def apply_move(self, move):
-        new_state = GameState.GAME_ROUND.calc_new_state(self.block_state, move)
-        self.block_state = new_state
+    def clone_and_apply_move(self, move):
+        block_state = self.GAME_ROUND.calc_new_state(self.block_state, move)
+        res = GameState(self.GAME_ROUND)
+        res.block_state = block_state
+        return res
 
     def is_finish(self):
-        return GameState.GAME_ROUND.is_reach_goal(self.block_state)
+        return self.GAME_ROUND.is_reach_goal(self.block_state)
 
     def get_hash(self):
         block = self.block_state
         return hash('{}-{}:{}'.format(block.head, block.tail, len(block.bridges)))
-        return hash(self.block_state)
 
 
 class GraphNode(TraversableNode):
@@ -44,16 +35,27 @@ class GraphNode(TraversableNode):
         self.game_state = game_state
         self.prev_move = prev_move
 
+    @staticmethod
+    def get_start_node(game_round: GameRound):
+        return GraphNode(GameState(game_round), None, None)
+
+    @classmethod
+    def parse(cls, o):
+        assert type(o) is GraphNode
+        return cls(o.game_state, o.prev_move, o.prev_node)
+
     def get_neighbors(self):
         n = list()
         for move in self.game_state.get_next_valid_moves():
-            new_state = self.game_state.clone()
-            new_state.apply_move(move)
+            new_state = self.game_state.clone_and_apply_move(move)
             n.append(GraphNode(new_state, move, self))
         return n
 
     def get_hash(self):
         return self.game_state.get_hash()
+
+    def is_finish_node(self):
+        return self.game_state.is_finish()
 
     def get_moves_to_node(self):
         moves = []
@@ -66,30 +68,37 @@ class GraphNode(TraversableNode):
 
 class BlindSearchAlgorithm(Algorithm):
     def __init__(self, game_round, timeout_secs):
-        GameState.SET_GAME_ROUND(game_round)
         self._timeout = timeout_secs
-        self._is_found = False
         self._moves = None
+        self._start_node = GraphNode.get_start_node(game_round)
+        self._num_total_iterations = 0
+        self.is_found = False
 
     def found_solution(self):
-        return self._is_found
+        return self.is_found
 
     def get_solution(self):
         return self._moves
 
     def run(self):
-        ntrial = 0
-        startNode = GraphNode(GameState(), None, None)
-        traversal = DFS(startNode)
-        t0 = time()
-        while not traversal.is_done() and (time() - t0) < self._timeout:
-            current_node = traversal.cur_node()
-            is_solved = current_node.game_state.is_finish()
+        self._num_total_iterations = 0
+        traversal = DFS(self._start_node)
+        start_time = time.time()
+        before_run_mem = psutil.Process().memory_info().rss
+        running_mem = psutil.Process().memory_info().rss
+        while not traversal.is_done() and (time.time() - start_time) < self._timeout:
+            self._num_total_iterations += 1
+            current_node = GraphNode.parse(traversal.cur_node())
+            is_solved = current_node.is_finish_node()
+            running_mem = max(running_mem, psutil.Process().memory_info().rss)
             if is_solved:
-                self._is_found = True
+                self.is_found = True
                 self._moves = current_node.get_moves_to_node()
-                print("ntrial: ", ntrial)
-                return
+                break
             traversal.iterate()
-            ntrial += 1
-        print("ntrial: ", ntrial)
+
+        self.elapsed_time = time.time() - start_time
+        self.max_mem_use = (running_mem - before_run_mem) / (1024.0)
+
+    def __repr__(self):
+        return 'DFS algorithm'
