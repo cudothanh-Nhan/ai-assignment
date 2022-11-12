@@ -52,8 +52,11 @@ class Glass:
     def get_size(self) -> int:
         return len(self.stack)
     
-    def to_string(self):
-        return ",".join([str(x) for x in self.stack])
+    def to_string(self, no):
+        res = "glass " + str(no) + "("
+        res += ",".join([str(x) for x in self.stack])
+        res += ")"
+        return res
     
     def clone(self):
         return copy.deepcopy(self)

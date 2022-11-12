@@ -31,6 +31,8 @@ class WatersortGame:
         if algorithm["isSolved"]:
             print("solved")
             moves = algorithm["moves"]
+            time = algorithm["time"]
+            print("elapsed time: " + str(time) + "s")
             self.simulate_solution(moves)
         else:
             print("failed")

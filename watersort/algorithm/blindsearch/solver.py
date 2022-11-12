@@ -1,4 +1,5 @@
 from watersort.algorithm.blindsearch.BFS import BFS
+import timeit
 from watersort.board import Board
 
 class GraphNode:
@@ -22,7 +23,7 @@ class GraphNode:
     
     def get_hash(self):
         glasses = self.board.get_glasses_list()
-        return ";".join([str(glass) for glass in glasses])
+        return ";".join([glasses[i].to_string(i) for i in range(len(glasses))])
     
     def get_moves_to_node(self):
         moves = list()
@@ -33,18 +34,23 @@ class GraphNode:
         return moves
 
 def BFSsolver(board):
+    start_time = timeit.default_timer()
     startNode = GraphNode(board, None, None)
     traversal = BFS(startNode)
     while not traversal.is_done():
         currentNode = traversal.cur_node()
         isSolved = currentNode.get_board().is_complete()
         if isSolved:
+            end_time = timeit.default_timer()
+            elapsed_time = end_time - start_time
             return {
                 "isSolved": True,
-                "moves": currentNode.get_moves_to_node()
+                "moves": currentNode.get_moves_to_node(),
+                "time": elapsed_time
             }
         traversal.iterate()
     return {
         "isSolved": False,
-        "moves": []
+        "moves": [],
+        "time": 0
     }
