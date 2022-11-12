@@ -38,7 +38,7 @@ if __name__ == '__main__':
         
         if args.algo.lower() == 'bfs':
             watersort_game = WatersortGame(args.round)
-            watersort_game.run_game_bfs_algo()
+            watersort_game.run_game_bfs_algo(args.timeout)
         elif args.algo.lower() == "a*":
             if args.round > 5:
                 print("Round number out of range")
