@@ -23,11 +23,11 @@ class WatersortGame:
 
         self.board = Board(boardList)
 
-    def run_game_bfs_algo(self):
+    def run_game_bfs_algo(self, timeout):
         self.game_ui.draw_waiting_screen()
         pygame.display.flip()
         
-        algorithm = BFSsolver(self.board)
+        algorithm = BFSsolver(self.board, timeout)
         if algorithm["isSolved"]:
             print("solved")
             moves = algorithm["moves"]

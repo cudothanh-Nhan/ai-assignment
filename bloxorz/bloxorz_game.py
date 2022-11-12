@@ -22,12 +22,20 @@ class BloxorzGame:
 
         algorithm = BlindSearchAlgorithm(self.game_round, timeout)
         algorithm.run()
+        solution = algorithm.get_solution() or []
+
+        # Print solution info
+        print('----------- Algorithm summary -----------')
+        print(algorithm)
+        print('Found solution = {}'.format(algorithm.is_found))
+        print('Elapsed time = {:.3f} seconds'.format(algorithm.elapsed_time))
+        print('Max mem use = {:.3f} KB'.format(algorithm.max_mem_use))
+        print('Num of move = {}'.format(len(solution)))
+        print('Solution = {}'.format(solution))
+
         if algorithm.found_solution():
-            print(algorithm.get_solution())
-            solution = algorithm.get_solution()
             self.simulate_solution(solution, caption="Found solution with DFS")
         else:
-            print("failed")
             self.simulate_solution(
                 [], caption="Not found solution. Press <space> to exit")
 
