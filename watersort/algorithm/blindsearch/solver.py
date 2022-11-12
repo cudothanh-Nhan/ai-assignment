@@ -1,5 +1,5 @@
 from watersort.algorithm.blindsearch.BFS import BFS
-import timeit
+import time
 from watersort.board import Board
 
 class GraphNode:
@@ -33,17 +33,17 @@ class GraphNode:
             moves.append(self.prev_move)
         return moves
 
-def BFSsolver(board):
-    start_time = timeit.default_timer()
+def BFSsolver(board, timeout):
+    start_time = time.time()
     startNode = GraphNode(board, None, None)
     traversal = BFS(startNode)
     iterate_num = 0
-    while not traversal.is_done():
+    while not traversal.is_done() and (time.time() - start_time) < timeout:
         iterate_num += 1
         currentNode = traversal.cur_node()
         isSolved = currentNode.get_board().is_complete()
         if isSolved:
-            end_time = timeit.default_timer()
+            end_time = time.time()
             elapsed_time = end_time - start_time
             return {
                 "isSolved": True,
