@@ -20,6 +20,6 @@ generic_algo_config = {
     'population': 500,
     'elite_rate': 0.05,
     'mate_rate': 0.5,
-    'mutate_rate': 0.1
+    'mutate_rate': 0.25
 }
 

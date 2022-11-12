@@ -1,5 +1,6 @@
 {
     "num_of_glasses": 3,
+    "capacity": 4,
     "board": [
         [1,2,1,2],
         [2,1,2,1],

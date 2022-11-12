@@ -1,6 +1,8 @@
 import time
 import random
 
+import psutil as psutil
+
 from bloxorz.blockstate import Move
 from bloxorz.config import generic_algo_config
 
@@ -26,7 +28,7 @@ class Individual:
         visited_coord = set()
         visited_state = set()
         i_state = self.game_round.get_start_state()
-        fitness = 0
+        fitness = 0.0
         moves = []
         is_dead = False
         for move in self.chromosome:
@@ -73,15 +75,21 @@ class Individual:
     @staticmethod
     def mutate_chromosome(chromosome):
         chromosome = chromosome.copy()
-        mutate_idx = random.randint(0, Individual.CHROMOSOME_LENGTH - 1)
-        chromosome[mutate_idx] = random.choice(list(Move))
+
+        for i in range(0, len(chromosome)):
+            if random.random() < Individual.MUTATE_RATE:
+                chromosome[i] = random.choice(list(Move))
+
+
         return chromosome
 
     def crossover(self, other):
         min_idx = min(len(self.max_moves), len(other.max_moves))
         split_idx = random.randint(min_idx if min_idx <= Individual.CHROMOSOME_LENGTH - 1 else 1, Individual.CHROMOSOME_LENGTH - 1)
         child = self.chromosome[0:split_idx] + other.chromosome[split_idx:]
+
         child = Individual.mutate_chromosome(child)
+
         return Individual(child, self.game_round)
 
     def __repr__(self):
@@ -95,6 +103,7 @@ class GenericAlgorithm:
         self.elapsed_time = 0
         self.solution = None
         self.timeout = timeout
+        self.max_mem_use = 0
 
     def get_best_move(self):
         return self.solution.max_moves
@@ -107,7 +116,11 @@ class GenericAlgorithm:
 
         populations.sort(key=lambda x: x.fitness, reverse=True)
         start = time.time()
+        generation_idx = 0
 
+        before_run_mem = psutil.Process().memory_info().rss
+        running_mem = psutil.Process().memory_info().rss
+        print('----------- Generations -----------')
         while not self.is_found and (time.time() - start) < self.timeout:
 
             n_elite = int(Individual.POPULATION * Individual.ELITE_RATE)
@@ -123,10 +136,23 @@ class GenericAlgorithm:
             populations = next_generation
 
             populations.sort(key=lambda x: x.fitness, reverse=True)
+            avg_fitness = sum(list(map(lambda x: x.fitness, populations))) / len(populations)
+            best_individual = populations[0]
 
-            if populations[0].is_finish:
+            # print generation info
+            print('Generation = {} | Best fitness: = {:.2f} | Avg fitness: {:.2f}'.format(generation_idx, best_individual.fitness, avg_fitness))
+
+            if best_individual.is_finish:
                 self.is_found = True
-        print(populations[0].max_moves)
+            generation_idx += 1
+
+            running_mem = max(running_mem, psutil.Process().memory_info().rss)
+
 
         self.solution = populations[0]
         self.elapsed_time = time.time() - start
+        self.max_mem_use = (running_mem - before_run_mem) / (1024 * 1024)
+
+    def __repr__(self):
+        return 'Generic algorithm: Chromosome length = {},Population = {}, Elite rate = {}, Mate rate = {}, Mutate rate = {}'.format\
+            (Individual.CHROMOSOME_LENGTH, Individual.POPULATION, Individual.ELITE_RATE, Individual.MATE_RATE, Individual.MUTATE_RATE)
