@@ -4,6 +4,7 @@ from bloxorz.bloxorz_game import BloxorzGame
 import argparse
 
 from watersort.test.test_main import TestMain
+from watersort.watersort_game import WatersortGame
 
 
 if __name__ == '__main__':
@@ -28,7 +29,12 @@ if __name__ == '__main__':
         else:
             print('Invalid algorithm name')
     elif args.game.lower() == 'watersort':
-        watersortTest = TestMain()
-        watersortTest.test_can_create_multiple_glass()
+        # watersortTest = TestMain()
+        # watersortTest.test_can_create_multiple_glass()
+        watersort_game = WatersortGame(args.round)
+        if args.algo.lower() == 'bfs':
+            watersort_game.run_game_bfs_algo()
+        else:
+            print('Invalid algorithm name')
     else:
-        print("Invalid game name. Please enter 'bloxorz' or 'water_puzzle'")
+        print("Invalid game name. Please enter 'bloxorz' or 'watersort'")

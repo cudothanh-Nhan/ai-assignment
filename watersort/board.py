@@ -8,8 +8,10 @@ class Board:
     
     def get_glasses_list(self):
         return self.glasses_list
-
     
+    def get_glass_by_index(self, index: int):
+        return self.glasses_list[index]
+
     def is_glass_complete(self, idx):
         glass = self.glasses_list[idx]
         return glass.is_full() and glass.has_single_color()

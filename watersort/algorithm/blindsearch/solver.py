@@ -31,7 +31,7 @@ class GraphNode:
             moves.append(self.prev_move)
         return moves
 
-def solver(board):
+def BFSsolver(board):
     startNode = GraphNode(board, None, None)
     traversal = BFS(startNode)
     while not traversal.is_done():

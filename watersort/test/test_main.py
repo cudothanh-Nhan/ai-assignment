@@ -2,13 +2,13 @@ import unittest
 
 from watersort.board import Board
 from watersort.glass import Glass
-from watersort.algorithm.blindsearch.solver import solver
+from watersort.algorithm.blindsearch.solver import BFSsolver
 
 class TestMain(unittest.TestCase):
 
     @staticmethod
-    def solve(board):
-        result = solver(board)
+    def print(board):
+        result = BFSsolver(board)
         if result["isSolved"]:
             print("solved")
             moves = result["moves"]
@@ -19,9 +19,8 @@ class TestMain(unittest.TestCase):
     
     def test_can_create_multiple_glass(self):
         board = Board([
-            Glass.create_glass([2, 1, 1, 3]),
-            Glass.create_glass([2, 2, 2]),
-            Glass.create_glass([1]),
-            Glass.create_glass([])
+            Glass.create_glass([1,2,1,2]),
+            Glass.create_glass([2,1,2,1]),
+            Glass.create_glass([ ])
         ])
-        self.solve(board)
+        self.print(board)
