@@ -7,7 +7,7 @@ class Move:
         self._to = _to
 
     def __str__(self) -> str:
-        return str(self._from) + "->" + str(self._to)
+        return str(self._from + 1) + "->" + str(self._to + 1)
 
 
 def generate_id() -> str:
@@ -53,6 +53,9 @@ class GameBoard:
     num_colors: int
     move: Move
 
+    _str: str
+    _num_blocks: int
+
     @staticmethod
     def set_max_size_of_glass(size: int) -> None:
         GameBoard.MAX_SIZE_OF_GLASS = size
@@ -64,6 +67,10 @@ class GameBoard:
         self.num_colors = num_colors
         self.move = None
 
+        # For caching
+        self._str = None
+        self._num_blocks = None
+
     def __eq__(self, __o: 'GameBoard') -> bool:
         if (not isinstance(__o, GameBoard)):
             return False
@@ -71,20 +78,25 @@ class GameBoard:
 
     def clone_with_move(self, move: Move) -> 'GameBoard':
         clone = copy.deepcopy(self)
-        clone.transit = move
+        clone._str = None
+        clone._num_blocks = None
+        clone.move = move
         return clone
 
     def get_num_blocks(self) -> int:
-        num_blocks: int = 0
-        for glass in self.glasses:
-            num_blocks += glass.get_num_blocks()
-        return num_blocks
+        if self._num_blocks == None:
+            self._num_blocks: int = 0
+            for glass in self.glasses:
+                self._num_blocks += glass.get_num_blocks()
+        return self._num_blocks
 
     def is_complete(self) -> bool:
-        return self.get_num_blocks() == self.num_colors
+        return self._num_blocks == self.num_colors
 
     def to_str(self) -> str:
-        return ",\n".join([str(glass.colors) for glass in self.glasses]) + '\n'
+        if self._str == None:
+            self._str = ",".join([str(glass.colors) for glass in self.glasses])
+        return self._str
 
     def transit(self, move: Move) -> 'GameBoard':
         if (self.glasses[move._to].get_curr_capacity() == GameBoard.MAX_SIZE_OF_GLASS):
@@ -112,7 +124,6 @@ class GameBoard:
 
             while to_glass.top() == from_glass.top() or to_glass.top() == None:
                 to_glass.colors.append(from_glass.pop())
-            print(str(move))
             return new_board
         return None
 
@@ -146,16 +157,9 @@ class Graph:
         return neighbors
 
     def solve_by_astar_algorithm(self):
-        # open_list is a list of nodes which have been visited, but who's neighbors
-        # haven't all been inspected, starts off with the start node
-        # closed_list is a list of nodes which have been visited
-        # and who's neighbors have been inspected
+        openedl: list[GameBoard] = list([self.start_node])
+        closedl: list[GameBoard] = list()
 
-        queue: list[GameBoard] = list([self.start_node])
-        closed_list: list[GameBoard] = list()
-
-        # g contains current distances from self.start_node to all other nodes
-        # the default value (if it's not found in the map) is +infinity
         g: dict[str, int] = {}
         g[self.start_node.to_str()] = 0
 
@@ -163,93 +167,70 @@ class Graph:
         parents: dict[str, GameBoard] = {}
         parents[self.start_node.to_str()] = self.start_node
 
-        while len(queue) > 0:
-            board = queue.pop()
-            last_board = parents[board.to_str()]
-            if (last_board in queue):
-                continue
-
-        while len(queue) > 0:
-            node = None
+        while len(openedl) > 0:
+            n = None
 
             # find a node with the lowest value of f() - evaluation function
-            for board in queue:
-                if node == None or g[board.to_str()] + self.h(board) < g[node.to_str()] + self.h(board):
-                    node = board
-
-            if node == None:
+            for p in openedl:
+                if n == None or g[p.to_str()] + self.h(p) < g[n.to_str()] + self.h(p):
+                    n = p
+            if n == None:
                 print('Path does not exist!')
                 return None
 
             # if the current node is the stop_node
             # then we begin reconstructin the path from it to the self.start_node
-            if node.is_complete():
+            if n.is_complete():
                 reconst_path: list[str] = []
 
-                while parents[node.to_str()] != node:
-                    reconst_path.append(str(node.move))
-                    node = parents[node.to_str()]
+                while parents[n.to_str()] != n:
+                    reconst_path.append(str(n.move))
+                    n = parents[n.to_str()]
 
-                reconst_path.append(str(self.start_node.move))
+                # reconst_path.append(str(self.start_node.move))
                 reconst_path.reverse()
 
                 print('Path found: {}'.format(reconst_path))
                 return reconst_path
 
-            neighbors = self.get_neighbors(node)
-            for m in neighbors:
-                print("Neighbor")
-                print(m.to_str())
+            neighbors = self.get_neighbors(n)
+            for neighbor in neighbors:
                 # if the current node isn't in both open_list and closed_list
-                # add it to open_list and note n as it's parent
-                if m not in queue and m not in closed_list:
-                    print("oke")
-                    queue.append(m)
-                    parents[m.to_str()] = node
-                    g[m.to_str()] = g[node.to_str()] + 1
+                # add it to open_list and n node as it's parent
+                if neighbor not in openedl and neighbor not in closedl:
+                    openedl.append(neighbor)
+                    parents[neighbor.to_str()] = n
+                    g[neighbor.to_str()] = g[n.to_str()] + 1
 
                 # otherwise, check if it's quicker to first visit n, then m
                 # and if it is, update parent data and g data
                 # and if the node was in the closed_list, move it to open_list
-                else:
-                    if g[m.to_str()] > g[node.to_str()] + 1:
-                        g[m] = g[node] + 1
-                        parents[m.to_str()] = node
+                elif g[neighbor.to_str()] > g[n.to_str()] + 1:
+                    g[neighbor.to_str()] = g[n.to_str()] + 1
+                    parents[neighbor.to_str()] = n
 
-                        if m in closed_list:
-                            closed_list.remove(m)
-                            queue.append(m)
+                    if neighbor in closedl:
+                        closedl.remove(neighbor)
+                        openedl.append(neighbor)
 
             # remove n from the open_list, and add it to closed_list
             # because all of his neighbors were inspected
-            if (node != None):
-                queue.remove(node)
-                closed_list.append(node)
-
+            if (n != None):
+                openedl.remove(n)
+                closedl.append(n)
         print('Solution does not exist!')
-        return None
 
-
-GameBoard.set_max_size_of_glass(2)
-# board = GameBoard([
-#     [1, 2, 3, 1],
-#     [2, 2, 3, 1],
-#     [3, 1, 2, 3],
-#     [],
-#     []
-# ], 3)
-
-
+GameBoard.set_max_size_of_glass(4)
 board = GameBoard([
-    [1, 2],
-    [2, 1],
-    []
-], 2)
+    [1, 2, 3, 2],
+    [1, 4, 4, 5],
+    [5, 5, 3, 4],
+    [2, 3, 4, 1],
+    [3, 1, 2, 5],
+    [], []
+], 5)
 
 graph = Graph(board)
-
-print("OLD BOARD:\n", board.to_str())
-
 graph.solve_by_astar_algorithm()
 
 # [
