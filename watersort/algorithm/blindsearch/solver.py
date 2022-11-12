@@ -1,7 +1,8 @@
 from watersort.algorithm.blindsearch.BFS import BFS
+from watersort.board import Board
 
 class GraphNode:
-    def __init__(self, board, prev_node, prev_move):
+    def __init__(self, board: Board, prev_node, prev_move):
         self.board = board
         self.prev_node = prev_node
         self.prev_move = prev_move
