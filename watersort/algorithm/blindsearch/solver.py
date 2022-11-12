@@ -37,7 +37,9 @@ def BFSsolver(board):
     start_time = timeit.default_timer()
     startNode = GraphNode(board, None, None)
     traversal = BFS(startNode)
+    iterate_num = 0
     while not traversal.is_done():
+        iterate_num += 1
         currentNode = traversal.cur_node()
         isSolved = currentNode.get_board().is_complete()
         if isSolved:
@@ -46,11 +48,13 @@ def BFSsolver(board):
             return {
                 "isSolved": True,
                 "moves": currentNode.get_moves_to_node(),
-                "time": elapsed_time
+                "time": elapsed_time,
+                "iterate": iterate_num
             }
         traversal.iterate()
     return {
         "isSolved": False,
         "moves": [],
-        "time": 0
+        "time": 0,
+        "iterate": iterate_num
     }
