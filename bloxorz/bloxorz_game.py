@@ -40,6 +40,16 @@ class BloxorzGame:
 
         algorithm.run()
         solution = algorithm.get_best_move()
+        # Print solution info
+
+        print('----------- Algorithm summary -----------')
+        print(algorithm)
+        print('Found solution = {}'.format(algorithm.is_found))
+        print('Elapsed time = {:.2f} seconds'.format(algorithm.elapsed_time))
+        print('Max mem use = {:.2f} MB'.format(algorithm.max_mem_use))
+        print('Num of move = {}'.format(len(solution)))
+        print('Best move = {}'.format(solution))
+
         # Simulate solution
         state = self.game_round.get_start_state()
         caption = 'Found solution' if algorithm.is_found else 'Not found solution. Simulate best move'
