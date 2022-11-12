@@ -1,0 +1,287 @@
+import copy
+
+
+class Move:
+    def __init__(self, _from: int, _to: int) -> None:
+        self._from = _from
+        self._to = _to
+
+    def __str__(self) -> str:
+        return str(self._from) + "->" + str(self._to)
+
+
+def generate_id() -> str:
+    None
+
+
+class Glass:
+
+    colors: list[int]
+
+    def __init__(self, colors: list[int]) -> None:
+        self.colors = colors
+
+    def get_curr_capacity(self) -> int:
+        return len(self.colors)
+
+    def top(self) -> int:
+        if (len(self.colors) == 0):
+            return None
+        return self.colors[-1]
+
+    def pop(self) -> int:
+        if (len(self.colors) == 0):
+            return None
+        return self.colors.pop()
+
+    def get_num_blocks(self) -> int:
+        colors_len = len(self.colors)
+        if (colors_len == 0):
+            return 0
+        num_blocks = 1
+        for i in range(1, colors_len):
+            if (self.colors[i] != self.colors[i - 1]):
+                num_blocks += 1
+
+        return num_blocks
+
+
+class GameBoard:
+    MAX_SIZE_OF_GLASS: int = 4
+
+    glasses: list[Glass]
+    num_colors: int
+    move: Move
+
+    @staticmethod
+    def set_max_size_of_glass(size: int) -> None:
+        GameBoard.MAX_SIZE_OF_GLASS = size
+
+    def __init__(self, data: list[list[int]], num_colors: int) -> None:
+        self.glasses = list()
+        for colors in data:
+            self.glasses.append(Glass(colors))
+        self.num_colors = num_colors
+        self.move = None
+
+    def __eq__(self, __o: 'GameBoard') -> bool:
+        if (not isinstance(__o, GameBoard)):
+            return False
+        return self.to_str() == __o.to_str()
+
+    def clone_with_move(self, move: Move) -> 'GameBoard':
+        clone = copy.deepcopy(self)
+        clone.transit = move
+        return clone
+
+    def get_num_blocks(self) -> int:
+        num_blocks: int = 0
+        for glass in self.glasses:
+            num_blocks += glass.get_num_blocks()
+        return num_blocks
+
+    def is_complete(self) -> bool:
+        return self.get_num_blocks() == self.num_colors
+
+    def to_str(self) -> str:
+        return ",\n".join([str(glass.colors) for glass in self.glasses]) + '\n'
+
+    def transit(self, move: Move) -> 'GameBoard':
+        if (self.glasses[move._to].get_curr_capacity() == GameBoard.MAX_SIZE_OF_GLASS):
+            return None
+
+        if (board.glasses[move._from].top() == None):
+            return None
+
+        new_board = self.clone_with_move(move)
+        from_glass = new_board.glasses[move._from]
+        to_glass = new_board.glasses[move._to]
+
+        if from_glass.top() == to_glass.top() or to_glass.top() == None:
+            to_glass_remain_capacity = GameBoard.MAX_SIZE_OF_GLASS - \
+                to_glass.get_curr_capacity()
+
+            num_of_tops = 1
+            for i in reversed(range(from_glass.get_curr_capacity() - 1)):
+                if (from_glass.colors[i] != from_glass.top()):
+                    break
+                num_of_tops += 1
+
+            if num_of_tops > to_glass_remain_capacity:
+                return None
+
+            while to_glass.top() == from_glass.top() or to_glass.top() == None:
+                to_glass.colors.append(from_glass.pop())
+            print(str(move))
+            return new_board
+        return None
+
+
+class Graph:
+    num_steps: int
+    start_node: GameBoard
+
+    # B - C
+    def __init__(self, start_node: GameBoard) -> None:
+        self.start_node = start_node
+        self.num_steps = start_node.get_num_blocks() - start_node.num_colors
+
+    # Heuristic function
+    def h(self, board: GameBoard) -> int:
+        return self.num_steps - board.get_num_blocks()
+
+    def get_neighbors(self, board: GameBoard) -> list[GameBoard]:
+        if (board == None):
+            return []
+        neighbors: list[GameBoard] = list()
+        num_glasses = len(board.glasses)
+        for i in range(num_glasses):
+            for j in range(num_glasses):
+                if (i == j):
+                    continue
+                neighbor = board.transit(Move(i, j))
+                if (neighbor != None):
+                    neighbors.append(neighbor)
+
+        return neighbors
+
+    def solve_by_astar_algorithm(self):
+        # open_list is a list of nodes which have been visited, but who's neighbors
+        # haven't all been inspected, starts off with the start node
+        # closed_list is a list of nodes which have been visited
+        # and who's neighbors have been inspected
+
+        queue: list[GameBoard] = list([self.start_node])
+        closed_list: list[GameBoard] = list()
+
+        # g contains current distances from self.start_node to all other nodes
+        # the default value (if it's not found in the map) is +infinity
+        g: dict[str, int] = {}
+        g[self.start_node.to_str()] = 0
+
+        # parents contains an adjacency map of all nodes
+        parents: dict[str, GameBoard] = {}
+        parents[self.start_node.to_str()] = self.start_node
+
+        while len(queue) > 0:
+            board = queue.pop()
+            last_board = parents[board.to_str()]
+            if (last_board in queue):
+                continue
+
+        while len(queue) > 0:
+            node = None
+
+            # find a node with the lowest value of f() - evaluation function
+            for board in queue:
+                if node == None or g[board.to_str()] + self.h(board) < g[node.to_str()] + self.h(board):
+                    node = board
+
+            if node == None:
+                print('Path does not exist!')
+                return None
+
+            # if the current node is the stop_node
+            # then we begin reconstructin the path from it to the self.start_node
+            if node.is_complete():
+                reconst_path: list[str] = []
+
+                while parents[node.to_str()] != node:
+                    reconst_path.append(str(node.move))
+                    node = parents[node.to_str()]
+
+                reconst_path.append(str(self.start_node.move))
+                reconst_path.reverse()
+
+                print('Path found: {}'.format(reconst_path))
+                return reconst_path
+
+            neighbors = self.get_neighbors(node)
+            for m in neighbors:
+                print("Neighbor")
+                print(m.to_str())
+                # if the current node isn't in both open_list and closed_list
+                # add it to open_list and note n as it's parent
+                if m not in queue and m not in closed_list:
+                    print("oke")
+                    queue.append(m)
+                    parents[m.to_str()] = node
+                    g[m.to_str()] = g[node.to_str()] + 1
+
+                # otherwise, check if it's quicker to first visit n, then m
+                # and if it is, update parent data and g data
+                # and if the node was in the closed_list, move it to open_list
+                else:
+                    if g[m.to_str()] > g[node.to_str()] + 1:
+                        g[m] = g[node] + 1
+                        parents[m.to_str()] = node
+
+                        if m in closed_list:
+                            closed_list.remove(m)
+                            queue.append(m)
+
+            # remove n from the open_list, and add it to closed_list
+            # because all of his neighbors were inspected
+            if (node != None):
+                queue.remove(node)
+                closed_list.append(node)
+
+        print('Solution does not exist!')
+        return None
+
+
+GameBoard.set_max_size_of_glass(2)
+# board = GameBoard([
+#     [1, 2, 3, 1],
+#     [2, 2, 3, 1],
+#     [3, 1, 2, 3],
+#     [],
+#     []
+# ], 3)
+
+
+board = GameBoard([
+    [1, 2],
+    [2, 1],
+    []
+], 2)
+
+graph = Graph(board)
+
+print("OLD BOARD:\n", board.to_str())
+
+graph.solve_by_astar_algorithm()
+
+# [
+#     [1, 2, 3, 1],
+#     [2, 2, 3, 1],
+#     [3, 1, 2, 3],
+#     [],
+#     []
+# ]
+
+# [
+#     [1, 2],
+#     [2, 1],
+#     []
+# ]
+
+# [
+#     [1, 1, 2, 3],
+#     [4, 5, 6, 7],
+#     [5, 3, 6, 2],
+#     [4, 2, 5, 7],
+#     [4, 6, 7, 7],
+#     [3, 1, 2, 1],
+#     [3, 4, 5, 6],
+#     [], []
+# ]
+
+# [
+#     [1, 2, 3, 2],
+#     [1, 4, 4, 5],
+#     [5, 5, 3, 4],
+#     [2, 3, 4, 1],
+#     [3, 1, 2, 5],
+#     [], []
+# ]

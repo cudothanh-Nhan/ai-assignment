@@ -1,19 +1,29 @@
+# AI Assignment
+
 ## Description
+
 This project run on `python 3.9.5` and `Pip 22.3`
 
 ## How to run
-1. Install package
+
+Install package
+
 ```bash
-pip install -r requirement.txt
+pip install -r requirements.txt
 ```
-2. Show run option parameters
+
+Show run option parameters
+
 ```bash
 python main.py -h
 ```
-3. Run main.py with options
+
+Run main.py with options
+
 ```bash
 python main.py [options]
 ```
+
 Options are:
 
 --algo: Algorithm name. Default is `generic`
