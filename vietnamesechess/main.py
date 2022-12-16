@@ -1,13 +1,7 @@
 import game
 
 
-
-def print_board(board):
-    print("Board is: ")
-    print(board)
-
-
-def main():
+if __name__ == '__main__':
     board = [
         [0,0,0,0,0],
         [0,1,-1,1,0],
@@ -15,7 +9,4 @@ def main():
         [0,1,0,1,0],
         [0,0,0,0,0]
     ]
-    board = game.convert_board(board, 2, 2, -1)
-    print_board(board)
-
-main()
+    game.print_board(board)
