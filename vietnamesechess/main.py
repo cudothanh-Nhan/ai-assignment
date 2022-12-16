@@ -19,6 +19,8 @@ def convert_board(board: list, move: Move, player: int):
     opponent = -player
     new_board[move.from_x][move.from_y] = 0
     new_board[move.to_x][move.to_y] = player
+
+    #ganh
     if(move.to_x == 0 or move.to_x == 4):
         if (move.to_y == 0 or move.to_y == 4):
             return new_board
@@ -27,42 +29,48 @@ def convert_board(board: list, move: Move, player: int):
                 new_board[move.to_x][move.to_y - 1] = player
                 new_board[move.to_x][move.to_y + 1] = player
                 
-                new_board = convert_board(new_board, move.to_x, move.to_y - 1, player)
-                new_board = convert_board(new_board, move.to_x, move.to_y + 1, player)
+
+                new_board = convert_board(new_board, Move(move.from_x, move.from_y, move.to_x, move.to_y - 1), player)
+                new_board = convert_board(new_board, Move(move.from_x, move.from_y, move.to_x, move.to_y + 1), player)
 
     elif(move.to_y == 0 or move.to_y == 4):
         if(new_board[move.to_x - 1][move.to_y] == opponent and new_board[move.to_x + 1][move.to_y] == opponent):
             new_board[move.to_x - 1][move.to_y] = player
             new_board[move.to_x + 1][move.to_y] = player
 
-            new_board = convert_board(new_board, move.to_x - 1, move.to_y, player)
-            new_board = convert_board(new_board, move.to_x + 1, move.to_y, player)
+            new_board = convert_board(new_board, Move(move.from_x, move.from_y, move.to_x - 1, move.to_y), player)
+            new_board = convert_board(new_board, Move(move.from_x, move.from_y, move.to_x + 1, move.to_y), player)
     else:
         if(new_board[move.to_x][move.to_y - 1] == opponent and new_board[move.to_x][move.to_y + 1] == opponent):
             new_board[move.to_x][move.to_y - 1] = player
             new_board[move.to_x][move.to_y + 1] = player
 
-            new_board = convert_board(new_board, move.to_x, move.to_y - 1, player)
-            new_board = convert_board(new_board, move.to_x, move.to_y + 1, player)
+            new_board = convert_board(new_board, Move(move.from_x, move.from_y, move.to_x, move.to_y - 1), player)
+            new_board = convert_board(new_board, Move(move.from_x, move.from_y, move.to_x, move.to_y + 1), player)
 
         if(new_board[move.to_x - 1][move.to_y] == opponent and new_board[move.to_x + 1][move.to_y] == opponent):
             new_board[move.to_x - 1][move.to_y] = player
             new_board[move.to_x + 1][move.to_y] = player
 
-            new_board = convert_board(new_board, move.to_x - 1, move.to_y, player)
-            new_board = convert_board(new_board, move.to_x + 1, move.to_y, player)
+            new_board = convert_board(new_board, Move(move.from_x, move.from_y, move.to_x-1, move.to_y), player)
+            new_board = convert_board(new_board, Move(move.from_x, move.from_y, move.to_x+1, move.to_y), player)
         if(new_board[move.to_x - 1][move.to_y - 1] == opponent and new_board[move.to_x + 1][move.to_y + 1] == opponent):
             new_board[move.to_x - 1][move.to_y - 1] = player
             new_board[move.to_x + 1][move.to_y + 1] = player
 
-            new_board = convert_board(new_board, move.to_x - 1, move.to_y - 1, player)
-            new_board = convert_board(new_board, move.to_x + 1, move.to_y + 1, player)
+            new_board = convert_board(new_board, Move(move.from_x, move.from_y, move.to_x-1, move.to_y - 1), player)
+            new_board = convert_board(new_board, Move(move.from_x, move.from_y, move.to_x+1, move.to_y + 1), player)
         if(new_board[move.to_x + 1][move.to_y - 1] == opponent and new_board[move.to_x - 1][move.to_y + 1] == opponent):
             new_board[move.to_x + 1][move.to_y - 1] = player
             new_board[move.to_x - 1][move.to_y + 1] = player
 
-            new_board = convert_board(new_board, move.to_x + 1, move.to_y - 1, player)
-            new_board = convert_board(new_board, move.to_x - 1, move.to_y + 1, player)
+            new_board = convert_board(new_board, Move(move.from_x, move.from_y, move.to_x+1, move.to_y - 1), player)
+            new_board = convert_board(new_board, Move(move.from_x, move.from_y, move.to_x-1, move.to_y + 1), player)
+    
+    # vay/chet
+
+
+
     return new_board
 
 def print_board(board):
