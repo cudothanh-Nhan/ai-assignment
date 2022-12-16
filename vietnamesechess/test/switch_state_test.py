@@ -24,7 +24,5 @@ class TestStringMethods(unittest.TestCase):
             [0,  0,  0,  0, 0]
         ]
         self.assertEqual(new_board, expected_board)
-
-
 if __name__ == '__main__':
     unittest.main()
