@@ -74,8 +74,27 @@ def convert_board(board: list, move: Move, player: int):
             new_board = convert_board(new_board, Move(move.from_x, move.from_y, move.to_x - 1, move.to_y + 1), player)
 
     # vay/chet
+    
 
     return new_board
+
+
+def is_valid_point(x: int, y: int) -> bool:
+    if x<0 or y<0 or y>4 or x>4:
+        return False
+    return True
+
+def get_adjacent(x: int, y: int) -> list[tuple(int, int)]:
+    adjacent = list()
+    lst = list()
+    if (x + y) % 2 == 0:
+        lst = [(x-1, y-1), (x-1, y), (x-1, y+1), (x,y-1), (x, y+1), (x+1, y-1), (x+1, y), (x+1, y+1)]
+    else:
+        lst = [(x-1, y), (x, y-1), (x, y+1), (x+1, y)]
+    for x in lst:
+        if is_valid_point(x[0], x[1]):
+            adjacent.append(x)
+    return adjacent
 
 def is_valid_move(board, move: Move) -> bool:
     if move.to_x <0 or move.to_x>4 or move.to_y<0 or move.to_y>4 or not move.to_x - move.from_x in [-1, 0, 1] or not move.to_y - move.from_y in [-1,0,1]:
